@@ -14,15 +14,20 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.IntakeCoral;
+import frc.robot.commands.MoveCoralArm;
+import frc.robot.commands.RunCoralManipulator;
+import frc.robot.subsystems.coral.Coral;
+import frc.robot.subsystems.coral.CoralConstants;
+import frc.robot.subsystems.coral.CoralIO;
+import frc.robot.subsystems.coral.CoralIOSim;
+import frc.robot.subsystems.coral.CoralIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -40,6 +45,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Coral coral;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -59,6 +65,7 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
+        coral = new Coral(new CoralIOSpark());
         break;
 
       case SIM:
@@ -70,6 +77,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
+        coral = new Coral(new CoralIOSim());
         break;
 
       default:
@@ -81,6 +89,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        coral = new Coral(new CoralIO() {});
         break;
     }
 
@@ -122,29 +131,12 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
+    controller.rightTrigger().onTrue(new IntakeCoral(coral));
+    controller.leftTrigger().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.inPosition));
     controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+        .rightBumper()
+        .onTrue(new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
   }
 
   /**
