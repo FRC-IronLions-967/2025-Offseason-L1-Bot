@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.coral;
 
-import frc.robot.Robot;
-
 /** Add your docs here. */
 public class CoralConstants {
 
@@ -27,15 +25,15 @@ public class CoralConstants {
   public static final boolean coralIntakeSpeedPositive = coralIntakeSpeed > 0;
 
   // Radians in real degrees in sim
-  public static final double inPosition = Robot.isReal() ? Math.PI : 180.0;
-  public static final double intakePosition = Robot.isReal() ? 0.224 : 12.85;
-  public static final double L1Position = Robot.isReal() ? Math.PI / 2 : 90;
-  public static final double armTolerance = Robot.isReal() ? 0.1 : 5.730;
+  public static final double inPosition = Math.PI;
+  public static final double intakePosition = 0.224;
+  public static final double L1Position = Math.PI / 2;
+  public static final double armTolerance = 0.1;
 
   public static final int manipulatorCANID = 10;
   public static final int armCANID = 9;
 
-  //Sim
+  // Sim
   public static final double armMotorReduction = 3.0;
   public static final double armMOI = 0.0101600642;
   public static final double armLength = 0.45;

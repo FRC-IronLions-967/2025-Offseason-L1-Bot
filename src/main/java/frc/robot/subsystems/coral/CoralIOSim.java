@@ -7,8 +7,11 @@ package frc.robot.subsystems.coral;
 import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -19,49 +22,61 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 public class CoralIOSim implements CoralIO {
 
   // Arm
-  private LoggedMechanism2d armCanvas;
-  private LoggedMechanismRoot2d armJoint;
+  private LoggedMechanism2d arm2d;
+  private LoggedMechanismRoot2d armRoot;
   private LoggedMechanismLigament2d arm;
   private LoggedMechanismLigament2d armBend;
-  private SingleJointedArmSim armSim;
 
   // Manipulator
-  private SparkFlexSim manipulator;
-  private double speed;
+  private SparkFlexSim manipulatorSim;
+  private SparkFlex manipulator;
+  private FlywheelSim manipulatorFlywheelSim;
+  private PIDController manipulatorPIDController;
 
   public CoralIOSim() {
-    armCanvas = new LoggedMechanism2d(0.762, 0.762);
-    armJoint = armCanvas.getRoot("Arm", 0.689, 0.2);
-    arm = armJoint.append(new LoggedMechanismLigament2d("Arm", 0.2, 90));
-    armBend = arm.append(new LoggedMechanismLigament2d("armBend", 0.25, -37));
-    armSim = new SingleJointedArmSim(DCMotor.getNEO(1), CoralConstants.armMotorReduction, CoralConstants.armMOI, CoralConstants.armLength, CoralConstants.armMinPosition, CoralConstants.armMaxPosition,
-     true, CoralConstants.armMinPosition, null);
+    // arm
 
-    manipulator =
-        new SparkFlexSim(
-            new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless),
-            DCMotor.getNeoVortex(1));
+    // arm visualisation
+    arm2d = new LoggedMechanism2d(0.762, 0.762);
+    armRoot = arm2d.getRoot("Arm", 0.689, 0.2);
+    arm = armRoot.append(new LoggedMechanismLigament2d("Arm", 0.2, 90));
+    armBend = arm.append(new LoggedMechanismLigament2d("armBend", 0.25, -37));
+
+    // manipulator
+    manipulator = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
+    manipulatorSim = new SparkFlexSim(manipulator, DCMotor.getNeoVortex(1));
+    manipulatorFlywheelSim =
+        new FlywheelSim(
+            LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(1), 0.00692, 1),
+            DCMotor.getNeoVortex(1),
+            0.01);
+    manipulatorPIDController = new PIDController(1.0, 0, 0);
   }
 
   @Override
   public void updateInputs(CoralIOInputs inputs) {
-    Logger.recordOutput("Arm", armCanvas);
+    // arm
+    Logger.recordOutput("Arm", arm2d);
 
-    // armSim.setInput(null);
-
-    manipulator.iterate(speed, 12, Robot.defaultPeriodSecs);
-
+    // manipulator
+    manipulatorFlywheelSim.setInput(manipulator.getAppliedOutput() * 12);
+    manipulatorFlywheelSim.update(Robot.defaultPeriodSecs);
+    manipulatorSim.iterate(
+        manipulatorFlywheelSim.getAngularVelocityRPM(), 12, Robot.defaultPeriodSecs);
+    // inputs
     inputs.armAngle = arm.getAngle();
-    inputs.manipulatorSpeed = manipulator.getRelativeEncoderSim().getVelocity();
+    inputs.manipulatorSpeed = manipulatorSim.getRelativeEncoderSim().getVelocity();
   }
 
   @Override
   public void moveArm(double angle) {
-    arm.setAngle(angle);
+    arm.setAngle(Units.radiansToDegrees(angle));
   }
 
   @Override
   public void runManipulator(double speed) {
-    this.speed = speed;
+    manipulator.setVoltage(
+        manipulatorPIDController.calculate(
+            manipulatorSim.getRelativeEncoderSim().getVelocity(), speed));
   }
 }
