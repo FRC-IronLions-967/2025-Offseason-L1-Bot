@@ -20,63 +20,62 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 /** Add your docs here. */
 public class CoralIOSim implements CoralIO {
-
-  // Arm
+  // Arm Visual
   private LoggedMechanism2d arm2d;
   private LoggedMechanismRoot2d armRoot;
-  private LoggedMechanismLigament2d arm;
+  private LoggedMechanismLigament2d armStraight;
   private LoggedMechanismLigament2d armBend;
 
   // Manipulator
-  private SparkFlexSim manipulatorSim;
-  private SparkFlex manipulator;
-  private FlywheelSim manipulatorFlywheelSim;
+  private SparkFlexSim manipulatorVortexSim;
+  private SparkFlex manipulatorVortex;
+  private FlywheelSim manipulatorSim;
   private PIDController manipulatorPIDController;
 
   public CoralIOSim() {
-    // arm
-
     // arm visualisation
     arm2d = new LoggedMechanism2d(0.762, 0.762);
     armRoot = arm2d.getRoot("Arm", 0.689, 0.2);
-    arm = armRoot.append(new LoggedMechanismLigament2d("Arm", 0.2, 90));
-    armBend = arm.append(new LoggedMechanismLigament2d("armBend", 0.25, -37));
+    armStraight = armRoot.append(new LoggedMechanismLigament2d("Arm", 0.2, 90));
+    armBend = armStraight.append(new LoggedMechanismLigament2d("armBend", 0.25, -37));
 
     // manipulator
-    manipulator = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
-    manipulatorSim = new SparkFlexSim(manipulator, DCMotor.getNeoVortex(1));
-    manipulatorFlywheelSim =
+    manipulatorVortex = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
+    manipulatorVortexSim = new SparkFlexSim(manipulatorVortex, DCMotor.getNeoVortex(1));
+    manipulatorSim =
         new FlywheelSim(
             LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(1), 0.00692, 1),
             DCMotor.getNeoVortex(1),
             0.01);
-    manipulatorPIDController = new PIDController(1.0, 0, 0);
+    manipulatorPIDController =
+        new PIDController(
+            CoralConstants.manipulatorP, CoralConstants.manipulatorI, CoralConstants.manipulatorD);
   }
 
   @Override
   public void updateInputs(CoralIOInputs inputs) {
-    // arm
+    // arm visualisation
     Logger.recordOutput("Arm", arm2d);
 
     // manipulator
-    manipulatorFlywheelSim.setInput(manipulator.getAppliedOutput() * 12);
-    manipulatorFlywheelSim.update(Robot.defaultPeriodSecs);
-    manipulatorSim.iterate(
-        manipulatorFlywheelSim.getAngularVelocityRPM(), 12, Robot.defaultPeriodSecs);
+    manipulatorSim.setInput(manipulatorVortex.getAppliedOutput() * 12);
+    manipulatorSim.update(Robot.defaultPeriodSecs);
+    manipulatorVortexSim.iterate(
+        manipulatorSim.getAngularVelocityRPM(), 12, Robot.defaultPeriodSecs);
     // inputs
-    inputs.armAngle = arm.getAngle();
-    inputs.manipulatorSpeed = manipulatorSim.getRelativeEncoderSim().getVelocity();
+    inputs.armAngle = Units.degreesToRadians(armStraight.getAngle());
+    inputs.manipulatorSpeed = manipulatorVortexSim.getRelativeEncoderSim().getVelocity();
   }
 
   @Override
   public void moveArm(double angle) {
-    arm.setAngle(Units.radiansToDegrees(angle));
+    armStraight.setAngle(Units.radiansToDegrees(angle));
   }
 
   @Override
   public void runManipulator(double speed) {
-    manipulator.setVoltage(
+    manipulatorVortex.setVoltage(
         manipulatorPIDController.calculate(
-            manipulatorSim.getRelativeEncoderSim().getVelocity(), speed));
+            manipulatorVortexSim.getRelativeEncoderSim().getVelocity(), speed));
   }
 }
