@@ -31,11 +31,11 @@ public class CoralIOSpark implements CoralIO {
 
   public CoralIOSpark() {
 
-    manipulator = new SparkFlex(10, MotorType.kBrushless);
+    manipulator = new SparkFlex(CoralConstants.armCANID, MotorType.kBrushless);
     manipulatorController = manipulator.getClosedLoopController();
     manipulatorConfig = new SparkFlexConfig();
 
-    arm = new SparkMax(9, MotorType.kBrushless);
+    arm = new SparkMax(CoralConstants.manipulatorCANID, MotorType.kBrushless);
     armController = arm.getClosedLoopController();
     armConfig = new SparkMaxConfig();
 
