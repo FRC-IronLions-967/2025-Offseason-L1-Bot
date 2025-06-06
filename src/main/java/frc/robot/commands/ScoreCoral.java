@@ -4,25 +4,18 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.coral.Coral;
-import frc.robot.subsystems.coral.CoralConstants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.Vision;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class IntakeCoral extends SequentialCommandGroup {
-  /** Creates a new IntakeCoral. */
-  public IntakeCoral(Coral coral, Drive drive, Vision vision, double speed) {
+public class ScoreCoral extends SequentialCommandGroup {
+  /** Creates a new ScoreCoral. */
+  public ScoreCoral(Drive drive, Coral coral, double coralSpeed) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(
-            DriveCommands.driveOverObject(drive, vision, speed),
-            new MoveCoralArm(coral, CoralConstants.intakePosition)),
-        new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
+    addCommands(new GoToSideOfReef(drive), new RunCoralManipulator(coral, coralSpeed));
   }
 }

@@ -15,6 +15,7 @@ package frc.robot.subsystems.drive;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -110,4 +111,16 @@ public class DriveConstants {
               driveMotorCurrentLimit,
               1),
           moduleTranslations);
+
+  public static final double robotPoseTranslationTolerance = 0.5;
+  public static final double robotPoseRotationTolerance = 0.1;
+
+  public static final Pose2d[] sidesOfTheReef = {
+    new Pose2d(3.82, 5.122, new Rotation2d(Units.degreesToRadians(-60))),
+    new Pose2d(3.223, 4.035, new Rotation2d(Units.degreesToRadians(0))),
+    new Pose2d(3.839, 2.919, new Rotation2d(Units.degreesToRadians(60))),
+    new Pose2d(5.09, 2.909, new Rotation2d(Units.degreesToRadians(120))),
+    new Pose2d(5.75, 4.025, new Rotation2d(Units.degreesToRadians(180))),
+    new Pose2d(5.148, 5.131, new Rotation2d(Units.degreesToRadians(-120)))
+  };
 }

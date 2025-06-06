@@ -31,6 +31,10 @@ public class VisionConstants {
   public static Transform3d robotToObjectDetectionCamera =
       new Transform3d(0, 0.0, 0.2, new Rotation3d(0.0, -0.0, 0.0));
 
+  public static final int aprilTagCamera1CameraIndex = 0;
+  public static final int aprilTagCamera2CameraIndex = 1;
+  public static final int objectDetectionCameraIndex = 2;
+
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;

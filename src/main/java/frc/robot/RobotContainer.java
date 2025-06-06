@@ -14,6 +14,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCoral;
 import frc.robot.commands.MoveCoralArm;
-import frc.robot.commands.RunCoralManipulator;
+import frc.robot.commands.ScoreCoral;
 import frc.robot.subsystems.coral.Coral;
 import frc.robot.subsystems.coral.CoralConstants;
 import frc.robot.subsystems.coral.CoralIO;
@@ -75,9 +77,13 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision("aprilTagCamera1", VisionConstants.robotToAprilTagCamera1),
                 new VisionIOPhotonVision(
-                    "aprilTagCamera2", VisionConstants.robotToAprilTagCamera2));
+                    VisionConstants.aprilTagCamera1Name, VisionConstants.robotToAprilTagCamera1),
+                new VisionIOPhotonVision(
+                    VisionConstants.aprilTagCamera2Name, VisionConstants.robotToAprilTagCamera2),
+                new VisionIOPhotonVision(
+                    VisionConstants.objectDetectionCameraName,
+                    VisionConstants.robotToObjectDetectionCamera));
         break;
 
       case SIM:
@@ -100,6 +106,10 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(
                     VisionConstants.aprilTagCamera2Name,
                     VisionConstants.robotToAprilTagCamera2,
+                    drive::getPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.objectDetectionCameraName,
+                    VisionConstants.robotToObjectDetectionCamera,
                     drive::getPose));
         break;
 
@@ -113,9 +123,16 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         coral = new Coral(new CoralIO() {});
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIO() {},
+                new VisionIO() {},
+                new VisionIO() {});
         break;
     }
+
+    Pathfinding.setPathfinder(new LocalADStar());
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -155,12 +172,9 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.rightTrigger().onTrue(new IntakeCoral(coral));
-    controller.leftTrigger().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.rightTrigger().onTrue(new IntakeCoral(coral, drive, vision, 3));
+    controller.leftTrigger().onTrue(new ScoreCoral(drive, coral, CoralConstants.coralScoringSpeed));
     controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.inPosition));
-    controller
-        .rightBumper()
-        .onTrue(new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
   }
 
   /**

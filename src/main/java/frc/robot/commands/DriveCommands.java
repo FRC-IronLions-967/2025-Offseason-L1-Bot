@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -101,6 +103,41 @@ public class DriveCommands {
                       : drive.getRotation()));
         },
         drive);
+  }
+
+  public static Command driveOverObject(Drive drive, Vision vision, double speed) {
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            ANGLE_KP,
+            0.0,
+            ANGLE_KD,
+            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+    return Commands.run(
+            () -> {
+              drive.runVelocity(
+                  new ChassisSpeeds(
+                      drive.getMaxLinearSpeedMetersPerSec()
+                          * speed
+                          * Math.cos(
+                              vision
+                                  .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                                  .getRadians()),
+                      drive.getMaxLinearSpeedMetersPerSec()
+                          * speed
+                          * Math.sin(
+                              vision
+                                  .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                                  .getRadians()),
+                      angleController.calculate(
+                          drive.getRotation().getRadians(),
+                          vision
+                              .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                              .getRadians())));
+            },
+            drive,
+            vision)
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
 
   /**
