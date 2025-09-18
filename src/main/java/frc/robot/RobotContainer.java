@@ -19,12 +19,13 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.IntakeCoral;
 import frc.robot.commands.MoveCoralArm;
-import frc.robot.commands.ScoreCoral;
+import frc.robot.commands.RunCoralManipulator;
 import frc.robot.subsystems.coral.Coral;
 import frc.robot.subsystems.coral.CoralConstants;
 import frc.robot.subsystems.coral.CoralIO;
@@ -172,9 +173,22 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.rightTrigger().onTrue(new IntakeCoral(coral, drive, vision, 3));
-    controller.leftTrigger().onTrue(new ScoreCoral(drive, coral, CoralConstants.coralScoringSpeed));
-    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.inPosition));
+    SequentialCommandGroup intakeCoral = new SequentialCommandGroup(
+        new ParallelCommandGroup(
+            new MoveCoralArm(coral, CoralConstants.intakePosition),
+            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed).finallyDo(()-> new MoveCoralArm(coral, CoralConstants.inPosition))
+        )
+    );
+
+    SequentialCommandGroup scoreCoral = new SequentialCommandGroup(
+        new RunCoralManipulator(coral, CoralConstants.L1Position),
+        new MoveCoralArm(coral, CoralConstants.inPosition)
+    );
+
+    controller.rightTrigger().whileTrue(intakeCoral);
+    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
+    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.leftTrigger().onTrue(scoreCoral);
   }
 
   /**

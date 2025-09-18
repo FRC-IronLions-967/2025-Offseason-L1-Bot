@@ -41,10 +41,11 @@ public class RunCoralManipulator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (CoralConstants.coralIntakeSpeedPositive) {
-      return coral.isCoralIn() ? speed > 0 : !coral.isCoralIn();
-    } else {
-      return !coral.isCoralIn() ? speed > 0 : coral.isCoralIn();
-    }
+    // if (CoralConstants.coralIntakeSpeedPositive) {
+    //   return coral.isCoralIn() ? speed > 0 : !coral.isCoralIn();
+    // } else {
+    //   return !coral.isCoralIn() ? speed > 0 : coral.isCoralIn();
+    // }
+    return false;
   }
 }

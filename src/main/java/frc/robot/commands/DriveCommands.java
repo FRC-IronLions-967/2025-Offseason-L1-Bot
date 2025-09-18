@@ -105,7 +105,7 @@ public class DriveCommands {
         drive);
   }
 
-  public static Command driveOverObject(Drive drive, Vision vision, double speed) {
+  public static Command driveOverObject(Drive drive, Vision vision, double speed, int cameraIndex) {
     ProfiledPIDController angleController =
         new ProfiledPIDController(
             ANGLE_KP,
@@ -121,18 +121,18 @@ public class DriveCommands {
                           * speed
                           * Math.cos(
                               vision
-                                  .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                                  .getTargetX(cameraIndex)
                                   .getRadians()),
                       drive.getMaxLinearSpeedMetersPerSec()
                           * speed
                           * Math.sin(
                               vision
-                                  .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                                  .getTargetX(cameraIndex)
                                   .getRadians()),
                       angleController.calculate(
                           drive.getRotation().getRadians(),
                           vision
-                              .getTargetX(VisionConstants.objectDetectionCameraIndex)
+                              .getTargetX(cameraIndex)
                               .getRadians())));
             },
             drive,

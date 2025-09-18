@@ -19,25 +19,25 @@ import edu.wpi.first.wpilibj.DigitalInput;
 /** Add your docs here. */
 public class CoralIOSpark implements CoralIO {
 
-  private SparkFlex manipulator;
-  private SparkFlexConfig manipulatorConfig;
+  private SparkMax manipulator;
+  private SparkMaxConfig manipulatorConfig;
   private SparkClosedLoopController manipulatorController;
 
-  private SparkMax arm;
-  private SparkMaxConfig armConfig;
+  private SparkFlex arm;
+  private SparkFlexConfig armConfig;
   private SparkClosedLoopController armController;
 
   private DigitalInput coralLimitSwitch;
 
   public CoralIOSpark() {
 
-    manipulator = new SparkFlex(CoralConstants.armCANID, MotorType.kBrushless);
+    manipulator = new SparkMax(CoralConstants.armCANID, MotorType.kBrushless);
     manipulatorController = manipulator.getClosedLoopController();
-    manipulatorConfig = new SparkFlexConfig();
+    manipulatorConfig = new SparkMaxConfig();
 
-    arm = new SparkMax(CoralConstants.manipulatorCANID, MotorType.kBrushless);
+    arm = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
     armController = arm.getClosedLoopController();
-    armConfig = new SparkMaxConfig();
+    armConfig = new SparkFlexConfig();
 
     manipulatorConfig.smartCurrentLimit(40).idleMode(IdleMode.kCoast);
     manipulatorConfig
