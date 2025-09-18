@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.coral.Coral;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
@@ -105,7 +106,7 @@ public class DriveCommands {
         drive);
   }
 
-  public static Command driveOverObject(Drive drive, Vision vision, double speed, int cameraIndex) {
+  public static Command driveOverObject(Drive drive, Vision vision, Coral coral, double speed) {
     ProfiledPIDController angleController =
         new ProfiledPIDController(
             ANGLE_KP,
@@ -113,31 +114,36 @@ public class DriveCommands {
             ANGLE_KD,
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
+
+    int cameraIndex = coral.isCoralIn() ? VisionConstants.aprilTagCamera1CameraIndex : VisionConstants.objectDetectionCameraIndex;
+
     return Commands.run(
             () -> {
-              drive.runVelocity(
-                  new ChassisSpeeds(
-                      drive.getMaxLinearSpeedMetersPerSec()
-                          * speed
-                          * Math.cos(
-                              vision
-                                  .getTargetX(cameraIndex)
-                                  .getRadians()),
-                      drive.getMaxLinearSpeedMetersPerSec()
-                          * speed
-                          * Math.sin(
-                              vision
-                                  .getTargetX(cameraIndex)
-                                  .getRadians()),
-                      angleController.calculate(
-                          drive.getRotation().getRadians(),
-                          vision
-                              .getTargetX(cameraIndex)
-                              .getRadians())));
+              if (vision.hasTarget(cameraIndex)) {
+                drive.runVelocity(
+                    new ChassisSpeeds(
+                        drive.getMaxLinearSpeedMetersPerSec()
+                            * speed
+                            * Math.cos(
+                                vision
+                                    .getTargetX(cameraIndex)
+                                    .getRadians()),
+                        drive.getMaxLinearSpeedMetersPerSec()
+                            * speed
+                            * Math.sin(
+                                vision
+                                    .getTargetX(cameraIndex)
+                                    .getRadians()),
+                        angleController.calculate(
+                            drive.getRotation().getRadians(),
+                            vision
+                                .getTargetX(cameraIndex)
+                                .getRadians())));
+              }
             },
             drive,
             vision)
-        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians())).onlyWhile(() -> !vision.hasTarget(cameraIndex));
   }
 
   /**
