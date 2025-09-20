@@ -14,7 +14,6 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 /** Add your docs here. */
 public class CoralIOSpark implements CoralIO {
@@ -27,15 +26,13 @@ public class CoralIOSpark implements CoralIO {
   private SparkFlexConfig armConfig;
   private SparkClosedLoopController armController;
 
-  private DigitalInput coralLimitSwitch;
-
   public CoralIOSpark() {
 
-    manipulator = new SparkMax(CoralConstants.armCANID, MotorType.kBrushless);
+    manipulator = new SparkMax(CoralConstants.manipulatorCANID, MotorType.kBrushless);
     manipulatorController = manipulator.getClosedLoopController();
     manipulatorConfig = new SparkMaxConfig();
 
-    arm = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
+    arm = new SparkFlex(CoralConstants.armCANID, MotorType.kBrushless);
     armController = arm.getClosedLoopController();
     armConfig = new SparkFlexConfig();
 
@@ -55,32 +52,28 @@ public class CoralIOSpark implements CoralIO {
         .absoluteEncoder
         .velocityConversionFactor(2.0 * Math.PI / 60)
         .positionConversionFactor(2.0 * Math.PI)
-        .zeroOffset(CoralConstants.armZeroOffset);
+        .zeroOffset(0.2);
     armConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(CoralConstants.armP, CoralConstants.armI, CoralConstants.armD)
-        .positionWrappingInputRange(CoralConstants.armMinPosition, CoralConstants.armMaxPosition)
-        .positionWrappingEnabled(false);
-
+        .positionWrappingEnabled(false)
+        .positionWrappingInputRange(CoralConstants.armMinPosition, CoralConstants.armMaxPosition);
     arm.configure(
         armConfig,
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
-
-    coralLimitSwitch = new DigitalInput(0);
   }
 
   @Override
   public void updateInputs(CoralIOInputs inputs) {
-    inputs.armAngle = arm.getEncoder().getPosition();
-    inputs.coralIn = coralLimitSwitch.get();
+    inputs.armAngle = arm.getAbsoluteEncoder().getPosition();
     inputs.manipulatorSpeed = manipulator.getEncoder().getVelocity();
   }
 
   @Override
   public void runManipulator(double speed) {
-    manipulatorController.setReference(speed, ControlType.kVelocity);
+    manipulator.set(speed);
   }
 
   @Override

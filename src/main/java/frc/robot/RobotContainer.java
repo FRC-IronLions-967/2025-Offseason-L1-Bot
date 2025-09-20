@@ -19,7 +19,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -37,11 +36,6 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
-import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -54,7 +48,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Coral coral;
-  private final Vision vision;
+  //   private final Vision vision;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -75,16 +69,16 @@ public class RobotContainer {
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
         coral = new Coral(new CoralIOSpark());
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVision(
-                    VisionConstants.aprilTagCamera1Name, VisionConstants.robotToAprilTagCamera1),
-                new VisionIOPhotonVision(
-                    VisionConstants.aprilTagCamera2Name, VisionConstants.robotToAprilTagCamera2),
-                new VisionIOPhotonVision(
-                    VisionConstants.objectDetectionCameraName,
-                    VisionConstants.robotToObjectDetectionCamera));
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.aprilTagCamera1Name, VisionConstants.robotToAprilTagCamera1),
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.aprilTagCamera2Name, VisionConstants.robotToAprilTagCamera2),
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.objectDetectionCameraName,
+        //             VisionConstants.robotToObjectDetectionCamera));
         break;
 
       case SIM:
@@ -97,21 +91,21 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
         coral = new Coral(new CoralIOSim());
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.aprilTagCamera1Name,
-                    VisionConstants.robotToAprilTagCamera1,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.aprilTagCamera2Name,
-                    VisionConstants.robotToAprilTagCamera2,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.objectDetectionCameraName,
-                    VisionConstants.robotToObjectDetectionCamera,
-                    drive::getPose));
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIOPhotonVisionSim(
+        //             VisionConstants.aprilTagCamera1Name,
+        //             VisionConstants.robotToAprilTagCamera1,
+        //             drive::getPose),
+        //         new VisionIOPhotonVisionSim(
+        //             VisionConstants.aprilTagCamera2Name,
+        //             VisionConstants.robotToAprilTagCamera2,
+        //             drive::getPose),
+        //         new VisionIOPhotonVisionSim(
+        //             VisionConstants.objectDetectionCameraName,
+        //             VisionConstants.robotToObjectDetectionCamera,
+        //             drive::getPose));
         break;
 
       default:
@@ -124,12 +118,12 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         coral = new Coral(new CoralIO() {});
-        vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIO() {},
-                new VisionIO() {},
-                new VisionIO() {});
+        // vision =
+        //     new Vision(
+        //         drive::addVisionMeasurement,
+        //         new VisionIO() {},
+        //         new VisionIO() {},
+        //         new VisionIO() {});
         break;
     }
 
@@ -173,22 +167,25 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    SequentialCommandGroup intakeCoral = new SequentialCommandGroup(
-        new ParallelCommandGroup(
+    SequentialCommandGroup intakeCoral =
+        new SequentialCommandGroup(
             new MoveCoralArm(coral, CoralConstants.intakePosition),
-            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed).finallyDo(()-> new MoveCoralArm(coral, CoralConstants.inPosition))
-        )
-    );
+            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
 
-    SequentialCommandGroup scoreCoral = new SequentialCommandGroup(
-        new RunCoralManipulator(coral, CoralConstants.L1Position),
-        new MoveCoralArm(coral, CoralConstants.inPosition)
-    );
+    SequentialCommandGroup scoreCoral =
+        new SequentialCommandGroup(
+            new RunCoralManipulator(coral, CoralConstants.L1Position),
+            new MoveCoralArm(coral, CoralConstants.inPosition));
 
-    controller.rightTrigger().whileTrue(intakeCoral);
-    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
-    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
-    controller.leftTrigger().onTrue(scoreCoral);
+    // controller.rightTrigger().whileTrue(intakeCoral);
+    // controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
+    // controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    // controller.leftTrigger().onTrue(scoreCoral);
+    controller.a().onTrue(new RunCoralManipulator(coral, 0.25));
+    controller.a().onFalse(new RunCoralManipulator(coral, 0));
+    controller.y().onTrue(new RunCoralManipulator(coral, -0.25));
+    controller.b().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.x().onTrue(new MoveCoralArm(coral, CoralConstants.intakePosition));
   }
 
   /**

@@ -7,27 +7,27 @@ package frc.robot.subsystems.coral;
 /** Add your docs here. */
 public class CoralConstants {
 
-  public static final double manipulatorP = 1.0;
+  public static final double manipulatorP = 0.1;
   public static final double manipulatorI = 0.0;
   public static final double manipulatorD = 0.0;
 
-  public static final double armZeroOffset = 0.0;
+  public static final double armZeroOffset = 5.308;
 
   public static final double armP = 1.0;
   public static final double armI = 0.0;
-  public static final double armD = 0.0;
+  public static final double armD = 0.1;
 
-  public static final double armMinPosition = 0.224;
-  public static final double armMaxPosition = Math.PI;
+  public static final double armMinPosition = 3.9;
+  public static final double armMaxPosition = 2 * Math.PI;
 
-  public static final double coralIntakeSpeed = 5600;
-  public static final double coralScoringSpeed = -5600;
+  public static final double coralIntakeSpeed = 1;
+  public static final double coralScoringSpeed = -1;
   public static final boolean coralIntakeSpeedPositive = coralIntakeSpeed > 0;
 
   // Radians in real degrees in sim
-  public static final double inPosition = Math.PI;
-  public static final double intakePosition = 0.224;
-  public static final double L1Position = Math.PI / 2;
+  public static final double inPosition = 6.19;
+  public static final double intakePosition = 4.192;//tested
+  public static final double L1Position = 6.0;
   public static final double armTolerance = 0.1;
 
   public static final int manipulatorCANID = 10;

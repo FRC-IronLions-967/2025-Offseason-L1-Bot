@@ -115,7 +115,10 @@ public class DriveCommands {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    int cameraIndex = coral.isCoralIn() ? VisionConstants.aprilTagCamera1CameraIndex : VisionConstants.objectDetectionCameraIndex;
+    int cameraIndex =
+        coral.isCoralIn()
+            ? VisionConstants.aprilTagCamera1CameraIndex
+            : VisionConstants.objectDetectionCameraIndex;
 
     return Commands.run(
             () -> {
@@ -124,26 +127,19 @@ public class DriveCommands {
                     new ChassisSpeeds(
                         drive.getMaxLinearSpeedMetersPerSec()
                             * speed
-                            * Math.cos(
-                                vision
-                                    .getTargetX(cameraIndex)
-                                    .getRadians()),
+                            * Math.cos(vision.getTargetX(cameraIndex).getRadians()),
                         drive.getMaxLinearSpeedMetersPerSec()
                             * speed
-                            * Math.sin(
-                                vision
-                                    .getTargetX(cameraIndex)
-                                    .getRadians()),
+                            * Math.sin(vision.getTargetX(cameraIndex).getRadians()),
                         angleController.calculate(
                             drive.getRotation().getRadians(),
-                            vision
-                                .getTargetX(cameraIndex)
-                                .getRadians())));
+                            vision.getTargetX(cameraIndex).getRadians())));
               }
             },
             drive,
             vision)
-        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians())).onlyWhile(() -> !vision.hasTarget(cameraIndex));
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()))
+        .onlyWhile(() -> !vision.hasTarget(cameraIndex));
   }
 
   /**
