@@ -177,13 +177,10 @@ public class RobotContainer {
             new RunCoralManipulator(coral, CoralConstants.L1Position),
             new MoveCoralArm(coral, CoralConstants.inPosition));
 
-    // controller.rightTrigger().whileTrue(intakeCoral);
-    // controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
-    // controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
-    // controller.leftTrigger().onTrue(scoreCoral);
-    controller.a().onTrue(new RunCoralManipulator(coral, 0.25));
-    controller.a().onFalse(new RunCoralManipulator(coral, 0));
-    controller.y().onTrue(new RunCoralManipulator(coral, -0.25));
+    controller.rightTrigger().whileTrue(intakeCoral);
+    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
+    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.leftTrigger().onTrue(scoreCoral);
     controller.b().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.x().onTrue(new MoveCoralArm(coral, CoralConstants.intakePosition));
   }

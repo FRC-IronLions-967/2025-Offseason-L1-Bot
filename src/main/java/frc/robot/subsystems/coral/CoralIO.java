@@ -13,7 +13,7 @@ public interface CoralIO {
   public static class CoralIOInputs {
     public double armAngle;
     public double manipulatorSpeed;
-    public boolean coralIn;
+    public double manipulatorCurrent;
   }
 
   public default void updateInputs(CoralIOInputs inputs) {}

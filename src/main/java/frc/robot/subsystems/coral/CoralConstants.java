@@ -26,12 +26,14 @@ public class CoralConstants {
 
   // Radians in real degrees in sim
   public static final double inPosition = 6.19;
-  public static final double intakePosition = 4.192;//tested
+  public static final double intakePosition = 4.192; // tested
   public static final double L1Position = 6.0;
   public static final double armTolerance = 0.1;
 
   public static final int manipulatorCANID = 10;
   public static final int armCANID = 9;
+
+  public static final double manipulatorCoralInCurrent = 30;
 
   // Sim
   public static final double armMotorReduction = 3.0;

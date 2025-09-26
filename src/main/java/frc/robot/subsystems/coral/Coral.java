@@ -35,7 +35,7 @@ public class Coral extends SubsystemBase {
   }
 
   public boolean isCoralIn() {
-    return inputs.coralIn;
+    return inputs.manipulatorCurrent > CoralConstants.manipulatorCoralInCurrent;
   }
 
   public double getArmAngle() {

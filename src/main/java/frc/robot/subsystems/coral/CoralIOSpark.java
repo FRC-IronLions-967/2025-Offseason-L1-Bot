@@ -20,7 +20,6 @@ public class CoralIOSpark implements CoralIO {
 
   private SparkMax manipulator;
   private SparkMaxConfig manipulatorConfig;
-  private SparkClosedLoopController manipulatorController;
 
   private SparkFlex arm;
   private SparkFlexConfig armConfig;
@@ -29,7 +28,6 @@ public class CoralIOSpark implements CoralIO {
   public CoralIOSpark() {
 
     manipulator = new SparkMax(CoralConstants.manipulatorCANID, MotorType.kBrushless);
-    manipulatorController = manipulator.getClosedLoopController();
     manipulatorConfig = new SparkMaxConfig();
 
     arm = new SparkFlex(CoralConstants.armCANID, MotorType.kBrushless);
@@ -69,6 +67,7 @@ public class CoralIOSpark implements CoralIO {
   public void updateInputs(CoralIOInputs inputs) {
     inputs.armAngle = arm.getAbsoluteEncoder().getPosition();
     inputs.manipulatorSpeed = manipulator.getEncoder().getVelocity();
+    inputs.manipulatorCurrent = manipulator.getOutputCurrent();
   }
 
   @Override
