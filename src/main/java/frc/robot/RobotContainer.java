@@ -165,24 +165,24 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> controller.getRightX()));
 
     SequentialCommandGroup intakeCoral =
         new SequentialCommandGroup(
             new MoveCoralArm(coral, CoralConstants.intakePosition),
-            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
+            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed),
+            new MoveCoralArm(coral, CoralConstants.inPosition));
 
     SequentialCommandGroup scoreCoral =
         new SequentialCommandGroup(
-            new RunCoralManipulator(coral, CoralConstants.L1Position),
+            new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed),
             new MoveCoralArm(coral, CoralConstants.inPosition));
 
     controller.rightTrigger().whileTrue(intakeCoral);
     controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
     controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.leftTrigger().onTrue(scoreCoral);
-    controller.b().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
-    controller.x().onTrue(new MoveCoralArm(coral, CoralConstants.intakePosition));
+    controller.a().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
   }
 
   /**

@@ -11,11 +11,12 @@ public class CoralConstants {
   public static final double manipulatorI = 0.0;
   public static final double manipulatorD = 0.0;
 
-  public static final double armZeroOffset = 5.308;
+  public static final double armZeroOffset = 0.4;
+  public static final double armPercentPower = 0.85;
 
-  public static final double armP = 1.0;
+  public static final double armP = 0.67;
   public static final double armI = 0.0;
-  public static final double armD = 0.1;
+  public static final double armD = 0.0;
 
   public static final double armMinPosition = 3.9;
   public static final double armMaxPosition = 2 * Math.PI;
@@ -25,15 +26,15 @@ public class CoralConstants {
   public static final boolean coralIntakeSpeedPositive = coralIntakeSpeed > 0;
 
   // Radians in real degrees in sim
-  public static final double inPosition = 6.19;
-  public static final double intakePosition = 4.192; // tested
-  public static final double L1Position = 6.0;
-  public static final double armTolerance = 0.1;
+  public static final double inPosition = 5.00;
+  public static final double intakePosition = 2.9; // tested
+  public static final double L1Position = 4.25;
+  public static final double armTolerance = 0.5;
 
   public static final int manipulatorCANID = 10;
   public static final int armCANID = 9;
 
-  public static final double manipulatorCoralInCurrent = 30;
+  public static final double manipulatorCoralInCurrent = 10;
 
   // Sim
   public static final double armMotorReduction = 3.0;

@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.coral.Coral;
+import frc.robot.subsystems.coral.CoralConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
@@ -116,7 +117,7 @@ public class DriveCommands {
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     int cameraIndex =
-        coral.isCoralIn()
+        coral.coralManipulatorCurrent() > CoralConstants.manipulatorCoralInCurrent
             ? VisionConstants.aprilTagCamera1CameraIndex
             : VisionConstants.objectDetectionCameraIndex;
 

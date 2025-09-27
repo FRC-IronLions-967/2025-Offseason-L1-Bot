@@ -34,8 +34,8 @@ public class Coral extends SubsystemBase {
     Logger.recordOutput("CoralInputs/ManipulatorSpeed", speed);
   }
 
-  public boolean isCoralIn() {
-    return inputs.manipulatorCurrent > CoralConstants.manipulatorCoralInCurrent;
+  public double coralManipulatorCurrent() {
+    return inputs.manipulatorCurrent;
   }
 
   public double getArmAngle() {

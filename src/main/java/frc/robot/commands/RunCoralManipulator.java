@@ -15,6 +15,7 @@ public class RunCoralManipulator extends Command {
   private Coral coral;
   private double speed;
   private Timer timer;
+  private boolean started;
 
   /** Creates a new IntakeWithCoralManipulator. */
   public RunCoralManipulator(Coral coral, double speed) {
@@ -29,6 +30,8 @@ public class RunCoralManipulator extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    started = false;
+    timer.reset();
     timer.start();
   }
 
@@ -36,6 +39,9 @@ public class RunCoralManipulator extends Command {
   @Override
   public void execute() {
     coral.runManipulator(speed);
+    if (timer.get() > 1 && !started) {
+      started = coral.coralManipulatorCurrent() < CoralConstants.manipulatorCoralInCurrent;
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -47,8 +53,8 @@ public class RunCoralManipulator extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (speed == CoralConstants.coralIntakeSpeed) {
-      return coral.isCoralIn();
+    if (speed == CoralConstants.coralIntakeSpeed && started) {
+      return coral.coralManipulatorCurrent() > CoralConstants.manipulatorCoralInCurrent;
     }
     return timer.get() > 1.0;
   }

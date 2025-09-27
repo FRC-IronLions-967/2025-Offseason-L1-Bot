@@ -50,13 +50,14 @@ public class CoralIOSpark implements CoralIO {
         .absoluteEncoder
         .velocityConversionFactor(2.0 * Math.PI / 60)
         .positionConversionFactor(2.0 * Math.PI)
-        .zeroOffset(0.2);
+        .zeroOffset(CoralConstants.armZeroOffset);
     armConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(CoralConstants.armP, CoralConstants.armI, CoralConstants.armD)
         .positionWrappingEnabled(false)
-        .positionWrappingInputRange(CoralConstants.armMinPosition, CoralConstants.armMaxPosition);
+        .positionWrappingInputRange(CoralConstants.armMinPosition, CoralConstants.armMaxPosition)
+        .outputRange(-CoralConstants.armPercentPower, CoralConstants.armPercentPower);
     arm.configure(
         armConfig,
         SparkBase.ResetMode.kResetSafeParameters,
