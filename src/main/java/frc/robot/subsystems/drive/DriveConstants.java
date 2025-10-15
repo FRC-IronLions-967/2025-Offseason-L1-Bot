@@ -15,7 +15,6 @@ package frc.robot.subsystems.drive;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -44,21 +43,21 @@ public class DriveConstants {
   // Device CAN IDs
   public static final int pigeonCanId = 9;
 
-  public static final int frontLeftDriveCanId = 5;
-  public static final int backLeftDriveCanId = 7;
-  public static final int frontRightDriveCanId = 3;
-  public static final int backRightDriveCanId = 1;
+  public static final int frontLeftDriveCanId = 1;
+  public static final int backLeftDriveCanId = 3;
+  public static final int frontRightDriveCanId = 7;
+  public static final int backRightDriveCanId = 5;
 
-  public static final int frontLeftTurnCanId = 6;
-  public static final int backLeftTurnCanId = 8;
-  public static final int frontRightTurnCanId = 4;
-  public static final int backRightTurnCanId = 2;
+  public static final int frontLeftTurnCanId = 2;
+  public static final int backLeftTurnCanId = 4;
+  public static final int frontRightTurnCanId = 8;
+  public static final int backRightTurnCanId = 6;
 
   // Drive motor configuration
   public static final int driveMotorCurrentLimit = 48;
   public static final double wheelRadiusMeters = Units.inchesToMeters(1.91);
   public static final double driveMotorReduction = 5.9;
-  public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);
+  public static final DCMotor driveGearbox = DCMotor.getNEO(1);
 
   // Drive encoder configuration
   public static final double driveEncoderPositionFactor =
@@ -111,16 +110,4 @@ public class DriveConstants {
               driveMotorCurrentLimit,
               1),
           moduleTranslations);
-
-  public static final double robotPoseTranslationTolerance = 0.5;
-  public static final double robotPoseRotationTolerance = 0.1;
-
-  public static final Pose2d[] sidesOfTheReef = {
-    new Pose2d(3.82, 5.122, new Rotation2d(Units.degreesToRadians(-60))),
-    new Pose2d(3.223, 4.035, new Rotation2d(Units.degreesToRadians(0))),
-    new Pose2d(3.839, 2.919, new Rotation2d(Units.degreesToRadians(60))),
-    new Pose2d(5.09, 2.909, new Rotation2d(Units.degreesToRadians(120))),
-    new Pose2d(5.75, 4.025, new Rotation2d(Units.degreesToRadians(180))),
-    new Pose2d(5.148, 5.131, new Rotation2d(Units.degreesToRadians(-120)))
-  };
 }

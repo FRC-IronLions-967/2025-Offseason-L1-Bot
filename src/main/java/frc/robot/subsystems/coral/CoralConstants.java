@@ -26,7 +26,7 @@ public class CoralConstants {
   public static final boolean coralIntakeSpeedPositive = coralIntakeSpeed > 0;
 
   // Radians in real degrees in sim
-  public static final double inPosition = 5.00;
+  public static final double inPosition = 5.320;
   public static final double intakePosition = 2.9; // tested
   public static final double L1Position = 4.25;
   public static final double armTolerance = 0.5;

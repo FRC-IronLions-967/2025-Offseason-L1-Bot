@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -148,6 +149,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+    NamedCommands.registerCommand("L1Pose", new MoveCoralArm(coral, CoralConstants.L1Position));
+    NamedCommands.registerCommand("ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
+    
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -182,7 +186,8 @@ public class RobotContainer {
     controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
     controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.leftTrigger().onTrue(scoreCoral);
-    controller.a().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
+    controller.rightBumper().onTrue(new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
+    controller.rightBumper().onFalse(new RunCoralManipulator(coral, 0));
   }
 
   /**
