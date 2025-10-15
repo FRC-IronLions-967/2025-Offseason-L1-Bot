@@ -19,6 +19,8 @@ import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -55,7 +57,8 @@ public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+  private final SendableChooser<Command> autoChooser;
+  private final LoggedDashboardChooser<Command> autoChoices;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -131,7 +134,8 @@ public class RobotContainer {
     Pathfinding.setPathfinder(new LocalADStar());
 
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChoices = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = AutoBuilder.buildAutoChooser("Leave");
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -150,10 +154,13 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     NamedCommands.registerCommand("L1Pose", new MoveCoralArm(coral, CoralConstants.L1Position));
-    NamedCommands.registerCommand("ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
-    
+    NamedCommands.registerCommand(
+        "ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
+
     // Configure the button bindings
     configureButtonBindings();
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -186,7 +193,9 @@ public class RobotContainer {
     controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
     controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.leftTrigger().onTrue(scoreCoral);
-    controller.rightBumper().onTrue(new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
+    controller
+        .rightBumper()
+        .onTrue(new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
     controller.rightBumper().onFalse(new RunCoralManipulator(coral, 0));
   }
 
@@ -196,6 +205,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return autoChoices.get();
   }
 }
