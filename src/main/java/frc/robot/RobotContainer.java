@@ -131,6 +131,10 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("L1Pose", new MoveCoralArm(coral, CoralConstants.L1Position));
+    NamedCommands.registerCommand(
+        "ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
+
     Pathfinding.setPathfinder(new LocalADStar());
 
     // Set up auto routines
@@ -152,10 +156,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    NamedCommands.registerCommand("L1Pose", new MoveCoralArm(coral, CoralConstants.L1Position));
-    NamedCommands.registerCommand(
-        "ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -182,7 +182,7 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new MoveCoralArm(coral, CoralConstants.intakePosition),
             new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed),
-            new MoveCoralArm(coral, CoralConstants.inPosition));
+            new MoveCoralArm(coral, CoralConstants.L1Position));
 
     SequentialCommandGroup scoreCoral =
         new SequentialCommandGroup(
@@ -190,13 +190,10 @@ public class RobotContainer {
             new MoveCoralArm(coral, CoralConstants.inPosition));
 
     controller.rightTrigger().whileTrue(intakeCoral);
-    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.inPosition));
+    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
     controller.leftTrigger().onTrue(scoreCoral);
-    controller
-        .rightBumper()
-        .onTrue(new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed));
-    controller.rightBumper().onFalse(new RunCoralManipulator(coral, 0));
+    controller.rightBumper().onTrue(new MoveCoralArm(coral, CoralConstants.inPosition));
   }
 
   /**

@@ -46,7 +46,7 @@ public class CoralIOSpark implements CoralIO {
         SparkBase.PersistMode.kPersistParameters);
 
     armConfig.smartCurrentLimit(40).idleMode(IdleMode.kBrake);
-    armConfig.closedLoopRampRate(0.5);
+    armConfig.closedLoopRampRate(1);
     armConfig
         .absoluteEncoder
         .velocityConversionFactor(2.0 * Math.PI / 60)
