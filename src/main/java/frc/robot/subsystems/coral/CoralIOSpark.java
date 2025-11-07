@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.coral;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -12,6 +14,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import frc.robot.util.LimitSwitchManager;
+
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -21,11 +26,14 @@ public class CoralIOSpark implements CoralIO {
   private SparkMax manipulator;
   private SparkMaxConfig manipulatorConfig;
 
+  private BooleanSupplier limitSwitch;
+
   private SparkFlex arm;
   private SparkFlexConfig armConfig;
   private SparkClosedLoopController armController;
 
   public CoralIOSpark() {
+    limitSwitch = LimitSwitchManager.getSwitch(0);
 
     manipulator = new SparkMax(CoralConstants.manipulatorCANID, MotorType.kBrushless);
     manipulatorConfig = new SparkMaxConfig();
@@ -70,6 +78,7 @@ public class CoralIOSpark implements CoralIO {
     inputs.armAngle = arm.getAbsoluteEncoder().getPosition();
     inputs.manipulatorSpeed = manipulator.getEncoder().getVelocity();
     inputs.manipulatorCurrent = manipulator.getOutputCurrent();
+    inputs.hasCoral = limitSwitch.getAsBoolean();
   }
 
   @Override

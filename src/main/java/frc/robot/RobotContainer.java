@@ -14,7 +14,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -22,17 +21,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.MoveCoralArm;
-import frc.robot.commands.RunCoralManipulator;
-import frc.robot.subsystems.coral.Coral;
-import frc.robot.subsystems.coral.CoralConstants;
-import frc.robot.subsystems.coral.CoralIO;
-import frc.robot.subsystems.coral.CoralIOSim;
-import frc.robot.subsystems.coral.CoralIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -50,7 +41,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Coral coral;
   //   private final Vision vision;
 
   // Controller
@@ -72,7 +62,6 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        coral = new Coral(new CoralIOSpark());
         // vision =
         //     new Vision(
         //         drive::addVisionMeasurement,
@@ -94,7 +83,6 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        coral = new Coral(new CoralIOSim());
         // vision =
         //     new Vision(
         //         drive::addVisionMeasurement,
@@ -121,7 +109,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        coral = new Coral(new CoralIO() {});
         // vision =
         //     new Vision(
         //         drive::addVisionMeasurement,
@@ -131,9 +118,6 @@ public class RobotContainer {
         break;
     }
 
-    NamedCommands.registerCommand("L1Pose", new MoveCoralArm(coral, CoralConstants.L1Position));
-    NamedCommands.registerCommand(
-        "ScoreCoral", new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed));
 
     Pathfinding.setPathfinder(new LocalADStar());
 
@@ -177,23 +161,6 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
-
-    SequentialCommandGroup intakeCoral =
-        new SequentialCommandGroup(
-            new MoveCoralArm(coral, CoralConstants.intakePosition),
-            new RunCoralManipulator(coral, CoralConstants.coralIntakeSpeed),
-            new MoveCoralArm(coral, CoralConstants.L1Position));
-
-    SequentialCommandGroup scoreCoral =
-        new SequentialCommandGroup(
-            new RunCoralManipulator(coral, CoralConstants.coralScoringSpeed),
-            new MoveCoralArm(coral, CoralConstants.inPosition));
-
-    controller.rightTrigger().whileTrue(intakeCoral);
-    controller.rightTrigger().onFalse(new MoveCoralArm(coral, CoralConstants.L1Position));
-    controller.leftBumper().onTrue(new MoveCoralArm(coral, CoralConstants.L1Position));
-    controller.leftTrigger().onTrue(scoreCoral);
-    controller.rightBumper().onTrue(new MoveCoralArm(coral, CoralConstants.inPosition));
   }
 
   /**

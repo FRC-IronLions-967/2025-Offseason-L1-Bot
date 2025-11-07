@@ -41,4 +41,8 @@ public class Coral extends SubsystemBase {
   public double getArmAngle() {
     return inputs.armAngle;
   }
+
+  public boolean hasCoral() {
+    return inputs.hasCoral;
+  }
 }
