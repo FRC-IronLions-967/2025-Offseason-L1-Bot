@@ -17,32 +17,69 @@ public class Coral extends SubsystemBase {
     this.io = io;
   }
 
+  public enum SystemState {
+    IDLE,
+    INTAKING,
+    SCORING,
+    EJECTL1,
+    RESTING
+  }
+
+  private SystemState systemState = SystemState.IDLE;
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
     Logger.processInputs("Coral", inputs);
+
+    applyStates();
   }
 
-  public void moveArm(double angle) {
-    io.moveArm(angle);
-    Logger.recordOutput("CoralInputs/ArmAngle", angle);
+  public void applyStates() {
+    boolean wantsToEJECTL1 = false;
+    switch (systemState) {
+      case IDLE:
+        io.moveArm(inputs.armAngle);
+        io.runManipulator(0);
+        break;
+      case INTAKING:
+        if (!inputs.hasCoral) {
+          io.moveArm(CoralConstants.intakePosition);
+          io.runManipulator(CoralConstants.coralIntakeSpeed);
+        } else {
+          systemState = SystemState.RESTING;
+        }
+        break;
+      case SCORING:
+        if (inputs.hasCoral) {
+          io.moveArm(CoralConstants.L1Position);
+        } else if (wantsToEJECTL1) {
+          systemState = SystemState.EJECTL1;
+        } else {
+          systemState = SystemState.RESTING;
+        }
+        break;
+      case EJECTL1:
+        if (!inputs.hasCoral) {
+          systemState = SystemState.RESTING;
+        } else if (!(inputs.armAngle <= CoralConstants.armTolerance + CoralConstants.L1Position
+            && inputs.armAngle <= CoralConstants.L1Position - CoralConstants.armTolerance)) {
+          systemState = SystemState.SCORING;
+        } else {
+          io.runManipulator(CoralConstants.coralScoringSpeed);
+        }
+        break;
+      case RESTING:
+        io.moveArm(CoralConstants.inPosition);
+        io.runManipulator(0);
+        break;
+      default:
+        break;
+    }
   }
 
-  public void runManipulator(double speed) {
-    io.runManipulator(speed);
-    Logger.recordOutput("CoralInputs/ManipulatorSpeed", speed);
-  }
-
-  public double coralManipulatorCurrent() {
-    return inputs.manipulatorCurrent;
-  }
-
-  public double getArmAngle() {
-    return inputs.armAngle;
-  }
-
-  public boolean hasCoral() {
-    return inputs.hasCoral;
+  public void setWantedState(SystemState wantedState) {
+    systemState = wantedState;
   }
 }

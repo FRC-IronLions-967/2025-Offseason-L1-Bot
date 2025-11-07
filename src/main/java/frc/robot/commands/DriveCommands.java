@@ -28,12 +28,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.coral.Coral;
-import frc.robot.subsystems.coral.CoralConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -103,42 +99,6 @@ public class DriveCommands {
                       : drive.getRotation()));
         },
         drive);
-  }
-
-  public static Command driveOverObject(Drive drive, Vision vision, Coral coral, double speed) {
-    ProfiledPIDController angleController =
-        new ProfiledPIDController(
-            ANGLE_KP,
-            0.0,
-            ANGLE_KD,
-            new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
-    angleController.enableContinuousInput(-Math.PI, Math.PI);
-
-    int cameraIndex =
-        coral.coralManipulatorCurrent() > CoralConstants.manipulatorCoralInCurrent
-            ? VisionConstants.aprilTagCamera1CameraIndex
-            : VisionConstants.objectDetectionCameraIndex;
-
-    return Commands.run(
-            () -> {
-              if (vision.hasTarget(cameraIndex)) {
-                drive.runVelocity(
-                    new ChassisSpeeds(
-                        drive.getMaxLinearSpeedMetersPerSec()
-                            * speed
-                            * Math.cos(vision.getTargetX(cameraIndex).getRadians()),
-                        drive.getMaxLinearSpeedMetersPerSec()
-                            * speed
-                            * Math.sin(vision.getTargetX(cameraIndex).getRadians()),
-                        angleController.calculate(
-                            drive.getRotation().getRadians(),
-                            vision.getTargetX(cameraIndex).getRadians())));
-              }
-            },
-            drive,
-            vision)
-        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()))
-        .onlyWhile(() -> !vision.hasTarget(cameraIndex));
   }
 
   /**

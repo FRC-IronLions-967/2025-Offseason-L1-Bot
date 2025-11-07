@@ -4,18 +4,20 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.coral.Coral;
-import frc.robot.subsystems.coral.CoralConstants;
 
 public class Superstructure extends SubsystemBase {
 
   private Coral coral;
 
-  private enum CurrentState {
+  public enum CurrentState {
     INTAKING,
     STOWING,
-    SCORING,
+    SCORINGL1,
+    EJECTL1,
     IDLE
   }
 
@@ -36,16 +38,44 @@ public class Superstructure extends SubsystemBase {
     switch (currentState) {
       case IDLE:
         break;
-   
+      case STOWING:
+        stow();
+        break;
+      case SCORINGL1:
+        scoreL1();
+        break;
+      case EJECTL1:
+        ejectL1();
+        break;
+      case INTAKING:
+        intake();
       default:
+        currentState = CurrentState.IDLE;
         break;
     }
   }
 
   private void intake() {
-    coral.moveArm(CoralConstants.intakePosition);
-    
+    coral.setWantedState(Coral.SystemState.INTAKING);
   }
 
+  private void scoreL1() {
+    coral.setWantedState(Coral.SystemState.SCORING);
+  }
 
+  private void ejectL1() {
+    coral.setWantedState(Coral.SystemState.EJECTL1);
+  }
+
+  private void stow() {
+    coral.setWantedState(Coral.SystemState.RESTING);
+  }
+
+  public void setWantedState(CurrentState state) {
+    this.currentState = state;
+  }
+
+  public Command setStateCommand(CurrentState state) {
+    return new InstantCommand(() -> setStateCommand(state));
+  }
 }

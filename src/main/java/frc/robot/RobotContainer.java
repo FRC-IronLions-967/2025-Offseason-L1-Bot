@@ -24,6 +24,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.coral.Coral;
+import frc.robot.subsystems.coral.CoralIO;
+import frc.robot.subsystems.coral.CoralIOSim;
+import frc.robot.subsystems.coral.CoralIOSpark;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -41,7 +46,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  //   private final Vision vision;
+  private final Coral coral;
+  private final Superstructure superstructure;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -62,16 +68,7 @@ public class RobotContainer {
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.aprilTagCamera1Name, VisionConstants.robotToAprilTagCamera1),
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.aprilTagCamera2Name, VisionConstants.robotToAprilTagCamera2),
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.objectDetectionCameraName,
-        //             VisionConstants.robotToObjectDetectionCamera));
+        coral = new Coral(new CoralIOSpark());
         break;
 
       case SIM:
@@ -83,21 +80,7 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIOPhotonVisionSim(
-        //             VisionConstants.aprilTagCamera1Name,
-        //             VisionConstants.robotToAprilTagCamera1,
-        //             drive::getPose),
-        //         new VisionIOPhotonVisionSim(
-        //             VisionConstants.aprilTagCamera2Name,
-        //             VisionConstants.robotToAprilTagCamera2,
-        //             drive::getPose),
-        //         new VisionIOPhotonVisionSim(
-        //             VisionConstants.objectDetectionCameraName,
-        //             VisionConstants.robotToObjectDetectionCamera,
-        //             drive::getPose));
+        coral = new Coral(new CoralIOSim());
         break;
 
       default:
@@ -109,15 +92,11 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        // vision =
-        //     new Vision(
-        //         drive::addVisionMeasurement,
-        //         new VisionIO() {},
-        //         new VisionIO() {},
-        //         new VisionIO() {});
+        coral = new Coral(new CoralIO() {});
         break;
     }
 
+    superstructure = new Superstructure(coral);
 
     Pathfinding.setPathfinder(new LocalADStar());
 
@@ -161,6 +140,19 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> controller.getRightX()));
+
+    controller
+        .rightTrigger()
+        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.INTAKING));
+    controller
+        .rightTrigger()
+        .onFalse(superstructure.setStateCommand(Superstructure.CurrentState.STOWING));
+    controller
+        .leftTrigger()
+        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.EJECTL1));
+    controller
+        .leftBumper()
+        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.SCORINGL1));
   }
 
   /**

@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.coral;
 
-import java.util.function.BooleanSupplier;
-
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -14,11 +12,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import frc.robot.util.LimitSwitchManager;
-
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.util.LimitSwitchManager;
+import java.util.function.BooleanSupplier;
 
 /** Add your docs here. */
 public class CoralIOSpark implements CoralIO {
