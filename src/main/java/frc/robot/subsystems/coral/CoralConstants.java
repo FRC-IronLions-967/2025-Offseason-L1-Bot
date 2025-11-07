@@ -12,7 +12,7 @@ public class CoralConstants {
   public static final double manipulatorD = 0.0;
 
   public static final double armZeroOffset = 0.4;
-  public static final double armPercentPower = 0.25;
+  public static final double armPercentPower = 0.8;
 
   public static final double armP = 0.67;
   public static final double armI = 0.0;
