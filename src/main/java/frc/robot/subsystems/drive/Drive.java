@@ -286,6 +286,13 @@ public class Drive extends SubsystemBase {
     return output;
   }
 
+  public boolean isInPose(Pose2d wantedPose) {
+    Pose2d highPose = wantedPose.times(1.1);
+    Pose2d lowPose = wantedPose.times(0.9);
+    return (highPose.getX() > getPose().getX() && highPose.getY() > getPose().getX())
+        && (lowPose.getX() < getPose().getX() && lowPose.getY() < getPose().getY());
+  }
+
   /** Returns the current odometry pose. */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {

@@ -143,16 +143,13 @@ public class RobotContainer {
 
     controller
         .rightTrigger()
-        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.INTAKING));
+        .onTrue(superstructure.setStateCommand(Superstructure.WantedState.INTAKING));
     controller
         .rightTrigger()
-        .onFalse(superstructure.setStateCommand(Superstructure.CurrentState.STOWING));
+        .onFalse(superstructure.setStateCommand(Superstructure.WantedState.STOWED));
     controller
         .leftTrigger()
-        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.EJECTL1));
-    controller
-        .leftBumper()
-        .onTrue(superstructure.setStateCommand(Superstructure.CurrentState.SCORINGL1));
+        .onTrue(superstructure.setStateCommand(Superstructure.WantedState.SCORING));
   }
 
   /**

@@ -8,20 +8,28 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.coral.Coral;
+import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
 
   private Coral coral;
 
-  public enum CurrentState {
+  private enum CurrentState {
     INTAKING,
     STOWING,
-    SCORINGL1,
-    EJECTL1,
+    SCORING,
+    IDLE
+  }
+
+  public enum WantedState {
+    INTAKING,
+    STOWED,
+    SCORING,
     IDLE
   }
 
   private CurrentState currentState = CurrentState.IDLE;
+  private WantedState wantedState = WantedState.IDLE;
 
   /** Creates a new Superstructure. */
   public Superstructure(Coral coral) {
@@ -31,51 +39,55 @@ public class Superstructure extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    applyStates();
+    currentState = updateState();
+    applyState();
+
+    Logger.recordOutput("Superstructure/CurrentState", currentState);
+    Logger.recordOutput("Superstructure/WantedState", wantedState);
   }
 
-  private void applyStates() {
-    switch (currentState) {
+  private CurrentState updateState() {
+    return switch (wantedState) {
+      case INTAKING:
+        yield CurrentState.INTAKING;
+      case STOWED:
+        yield CurrentState.STOWING;
+      case SCORING:
+        yield CurrentState.SCORING;
       case IDLE:
+        yield CurrentState.IDLE;
+      default:
+        yield CurrentState.IDLE;
+    };
+  }
+
+  private void applyState() {
+    switch (currentState) {
+      case INTAKING:
+        coral.setWantedState(Coral.WantedState.INTAKING);
         break;
       case STOWING:
-        stow();
+        coral.setWantedState(Coral.WantedState.RESTING);
         break;
-      case SCORINGL1:
-        scoreL1();
+      case SCORING:
+        coral.setWantedState(Coral.WantedState.SCORING);
         break;
-      case EJECTL1:
-        ejectL1();
-        break;
-      case INTAKING:
-        intake();
+      case IDLE:
+        coral.setWantedState(Coral.WantedState.IDLE);
       default:
-        currentState = CurrentState.IDLE;
+        coral.setWantedState(Coral.WantedState.IDLE);
         break;
     }
   }
 
-  private void intake() {
-    coral.setWantedState(Coral.SystemState.INTAKING);
+  public void setWantedState(WantedState state) {
+    wantedState = state;
   }
 
-  private void scoreL1() {
-    coral.setWantedState(Coral.SystemState.SCORING);
-  }
-
-  private void ejectL1() {
-    coral.setWantedState(Coral.SystemState.EJECTL1);
-  }
-
-  private void stow() {
-    coral.setWantedState(Coral.SystemState.RESTING);
-  }
-
-  public void setWantedState(CurrentState state) {
-    this.currentState = state;
-  }
-
-  public Command setStateCommand(CurrentState state) {
-    return new InstantCommand(() -> setStateCommand(state));
+  public Command setStateCommand(WantedState state) {
+    return new InstantCommand(
+        () -> {
+          setWantedState(state);
+        });
   }
 }
