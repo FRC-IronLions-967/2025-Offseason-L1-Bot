@@ -45,9 +45,9 @@ public class Coral extends SubsystemBase {
     systemState = updateState();
     applyState();
 
-    Logger.recordOutput("Coral/SystemState", systemState);
-    Logger.recordOutput("Coral/PreviousState", previousState);
-    Logger.recordOutput("Coral/WantedState", wantedState);
+    Logger.recordOutput("CoralStates/SystemState", systemState);
+    Logger.recordOutput("CoralStates/PreviousState", previousState);
+    Logger.recordOutput("CoralStates/WantedState", wantedState);
   }
 
   private SystemState updateState() {
@@ -65,8 +65,6 @@ public class Coral extends SubsystemBase {
         yield SystemState.EJECTING;
       case RESTING:
         yield SystemState.RESTING;
-      default:
-        yield SystemState.IDLE;
     };
   }
 
@@ -85,9 +83,6 @@ public class Coral extends SubsystemBase {
       case RESTING:
         io.runManipulator(0);
         io.moveArm(CoralConstants.inPosition);
-      default:
-        systemState = SystemState.IDLE;
-        break;
     }
   }
 

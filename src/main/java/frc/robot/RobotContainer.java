@@ -145,9 +145,6 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(superstructure.setStateCommand(Superstructure.WantedState.INTAKING));
     controller
-        .rightTrigger()
-        .onFalse(superstructure.setStateCommand(Superstructure.WantedState.STOWED));
-    controller
         .leftTrigger()
         .onTrue(superstructure.setStateCommand(Superstructure.WantedState.SCORING));
   }

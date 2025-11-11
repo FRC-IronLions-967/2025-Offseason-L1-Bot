@@ -20,17 +20,17 @@ import java.util.function.BooleanSupplier;
 /** Add your docs here. */
 public class CoralIOSpark implements CoralIO {
 
-  private SparkMax manipulator;
-  private SparkMaxConfig manipulatorConfig;
+  protected SparkMax manipulator;
+  protected SparkMaxConfig manipulatorConfig;
 
-  private BooleanSupplier limitSwitch;
+  protected BooleanSupplier limitSwitch;
 
-  private SparkFlex arm;
-  private SparkFlexConfig armConfig;
-  private SparkClosedLoopController armController;
+  protected SparkFlex arm;
+  protected SparkFlexConfig armConfig;
+  protected SparkClosedLoopController armController;
 
-  private double manipulatorSetSpeed;
-  private double armSetPosition;
+  protected double manipulatorSetSpeed;
+  protected double armSetPosition;
 
   public CoralIOSpark() {
     limitSwitch = LimitSwitchManager.getSwitch(0);
@@ -78,7 +78,7 @@ public class CoralIOSpark implements CoralIO {
     inputs.armAngle = arm.getAbsoluteEncoder().getPosition();
     inputs.manipulatorSpeed = manipulator.getEncoder().getVelocity();
     inputs.manipulatorCurrent = manipulator.getOutputCurrent();
-    inputs.hasCoral = limitSwitch.getAsBoolean();
+    // inputs.hasCoral = limitSwitch.getAsBoolean();
     inputs.armInPosition =
         (armSetPosition - CoralConstants.armTolerance < inputs.armAngle
             && armSetPosition + CoralConstants.armTolerance > inputs.armAngle);
@@ -86,18 +86,17 @@ public class CoralIOSpark implements CoralIO {
 
     inputs.armSetPosition = armSetPosition;
     inputs.manipulatorSetSpeed = manipulatorSetSpeed;
-
-    manipulator.set(manipulatorSetSpeed);
-    armController.setReference(armSetPosition, ControlType.kPosition);
   }
 
   @Override
   public void runManipulator(double speed) {
+    manipulator.set(speed);
     manipulatorSetSpeed = speed;
   }
 
   @Override
   public void moveArm(double angle) {
+    armController.setReference(angle, ControlType.kPosition);
     armSetPosition = angle;
   }
 }

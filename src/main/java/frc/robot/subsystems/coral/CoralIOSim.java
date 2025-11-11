@@ -4,9 +4,7 @@
 
 package frc.robot.subsystems.coral;
 
-import com.revrobotics.sim.SparkFlexSim;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.sim.SparkMaxSim;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -19,7 +17,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 /** Add your docs here. */
-public class CoralIOSim implements CoralIO {
+public class CoralIOSim extends CoralIOSpark {
   // Arm Visual
   private LoggedMechanism2d arm2d;
   private LoggedMechanismRoot2d armRoot;
@@ -27,12 +25,12 @@ public class CoralIOSim implements CoralIO {
   private LoggedMechanismLigament2d armBend;
 
   // Manipulator
-  private SparkFlexSim manipulatorVortexSim;
-  private SparkFlex manipulatorVortex;
+  private SparkMaxSim manipulatorMaxSim;
   private FlywheelSim manipulatorSim;
   private PIDController manipulatorPIDController;
 
   public CoralIOSim() {
+    super();
     // arm visualisation
     arm2d = new LoggedMechanism2d(0.762, 0.762);
     armRoot = arm2d.getRoot("Arm", 0.689, 0.2);
@@ -40,8 +38,7 @@ public class CoralIOSim implements CoralIO {
     armBend = armStraight.append(new LoggedMechanismLigament2d("armBend", 0.25, -37));
 
     // manipulator
-    manipulatorVortex = new SparkFlex(CoralConstants.manipulatorCANID, MotorType.kBrushless);
-    manipulatorVortexSim = new SparkFlexSim(manipulatorVortex, DCMotor.getNeoVortex(1));
+    manipulatorMaxSim = new SparkMaxSim(manipulator, DCMotor.getNEO(1));
     manipulatorSim =
         new FlywheelSim(
             LinearSystemId.createFlywheelSystem(DCMotor.getNeoVortex(1), 0.00692, 1),
@@ -54,28 +51,30 @@ public class CoralIOSim implements CoralIO {
 
   @Override
   public void updateInputs(CoralIOInputs inputs) {
+    super.updateInputs(inputs);
     // arm visualisation
     Logger.recordOutput("Arm", arm2d);
 
     // manipulator
-    manipulatorSim.setInput(manipulatorVortex.getAppliedOutput() * 12);
+    manipulatorSim.setInput(manipulator.getAppliedOutput() * 12);
     manipulatorSim.update(Robot.defaultPeriodSecs);
-    manipulatorVortexSim.iterate(
-        manipulatorSim.getAngularVelocityRPM(), 12, Robot.defaultPeriodSecs);
+    manipulatorMaxSim.iterate(manipulatorSim.getAngularVelocityRPM(), 12, Robot.defaultPeriodSecs);
     // inputs
     inputs.armAngle = Units.degreesToRadians(armStraight.getAngle());
-    inputs.manipulatorSpeed = manipulatorVortexSim.getRelativeEncoderSim().getVelocity();
+    inputs.manipulatorSpeed = manipulatorMaxSim.getRelativeEncoderSim().getVelocity();
   }
 
   @Override
   public void moveArm(double angle) {
+    super.moveArm(angle);
     armStraight.setAngle(Units.radiansToDegrees(angle));
   }
 
   @Override
   public void runManipulator(double speed) {
-    manipulatorVortex.setVoltage(
+    super.runManipulator(speed);
+    manipulator.setVoltage(
         manipulatorPIDController.calculate(
-            manipulatorVortexSim.getRelativeEncoderSim().getVelocity(), speed));
+            manipulatorMaxSim.getRelativeEncoderSim().getVelocity(), speed));
   }
 }
