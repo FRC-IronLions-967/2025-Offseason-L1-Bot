@@ -15,11 +15,6 @@ public interface CoralIO {
     public double manipulatorSpeed;
     public double manipulatorCurrent;
     public boolean hasCoral;
-    public boolean armInPosition;
-    public boolean manipulatorRunningAtSet;
-
-    public double manipulatorSetSpeed;
-    public double armSetPosition;
   }
 
   public default void updateInputs(CoralIOInputs inputs) {}

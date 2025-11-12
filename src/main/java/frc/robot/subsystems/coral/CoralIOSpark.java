@@ -29,9 +29,6 @@ public class CoralIOSpark implements CoralIO {
   protected SparkFlexConfig armConfig;
   protected SparkClosedLoopController armController;
 
-  protected double manipulatorSetSpeed;
-  protected double armSetPosition;
-
   public CoralIOSpark() {
     limitSwitch = LimitSwitchManager.getSwitch(0);
 
@@ -78,25 +75,16 @@ public class CoralIOSpark implements CoralIO {
     inputs.armAngle = arm.getAbsoluteEncoder().getPosition();
     inputs.manipulatorSpeed = manipulator.getEncoder().getVelocity();
     inputs.manipulatorCurrent = manipulator.getOutputCurrent();
-    // inputs.hasCoral = limitSwitch.getAsBoolean();
-    inputs.armInPosition =
-        (armSetPosition - CoralConstants.armTolerance < inputs.armAngle
-            && armSetPosition + CoralConstants.armTolerance > inputs.armAngle);
-    inputs.manipulatorRunningAtSet = inputs.manipulatorSpeed > 5000 * manipulatorSetSpeed;
-
-    inputs.armSetPosition = armSetPosition;
-    inputs.manipulatorSetSpeed = manipulatorSetSpeed;
+    inputs.hasCoral = limitSwitch.getAsBoolean();
   }
 
   @Override
   public void runManipulator(double speed) {
     manipulator.set(speed);
-    manipulatorSetSpeed = speed;
   }
 
   @Override
   public void moveArm(double angle) {
     armController.setReference(angle, ControlType.kPosition);
-    armSetPosition = angle;
   }
 }

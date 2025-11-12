@@ -12,6 +12,9 @@ public class Coral extends SubsystemBase {
   private final CoralIO io;
   private final CoralIOInputsAutoLogged inputs = new CoralIOInputsAutoLogged();
 
+  private double armSetPosition;
+  private double manipulatorSetSpeed;
+
   /** Creates a new Coral. */
   public Coral(CoralIO io) {
     this.io = io;
@@ -45,9 +48,20 @@ public class Coral extends SubsystemBase {
     systemState = updateState();
     applyState();
 
+    io.runManipulator(manipulatorSetSpeed);
+    io.moveArm(armSetPosition);
+
+    Logger.recordOutput("CoralStates/ManipulatorSetSpeed", manipulatorSetSpeed);
+    Logger.recordOutput("CoralStates/ArmSetPosition", armSetPosition);
+
     Logger.recordOutput("CoralStates/SystemState", systemState);
     Logger.recordOutput("CoralStates/PreviousState", previousState);
     Logger.recordOutput("CoralStates/WantedState", wantedState);
+  }
+
+  public boolean isArmInPosition(double position) {
+    return position + CoralConstants.armTolerance < inputs.armAngle
+        || inputs.armAngle < position + CoralConstants.armTolerance;
   }
 
   private SystemState updateState() {
@@ -59,7 +73,7 @@ public class Coral extends SubsystemBase {
         if (inputs.hasCoral) yield SystemState.SCORING;
         yield SystemState.INTAKING;
       case SCORING:
-        if (!inputs.armInPosition) {
+        if (isArmInPosition(CoralConstants.L1Position)) {
           yield SystemState.SCORING;
         }
         yield SystemState.EJECTING;
@@ -73,16 +87,20 @@ public class Coral extends SubsystemBase {
       case IDLE:
         break;
       case INTAKING:
-        io.runManipulator(CoralConstants.coralIntakeSpeed);
-        io.moveArm(CoralConstants.intakePosition);
+        armSetPosition = CoralConstants.intakePosition;
+        manipulatorSetSpeed = CoralConstants.coralIntakeSpeed;
+        break;
       case SCORING:
-        io.moveArm(CoralConstants.L1Position);
-        io.runManipulator(0);
+        armSetPosition = CoralConstants.L1Position;
+        manipulatorSetSpeed = 0.0;
+        break;
       case EJECTING:
-        io.runManipulator(CoralConstants.coralScoringSpeed);
+        manipulatorSetSpeed = CoralConstants.coralScoringSpeed;
+        break;
       case RESTING:
-        io.runManipulator(0);
-        io.moveArm(CoralConstants.inPosition);
+        armSetPosition = CoralConstants.inPosition;
+        manipulatorSetSpeed = 0.0;
+        break;
     }
   }
 
