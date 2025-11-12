@@ -41,7 +41,7 @@ public class CoralIOSpark implements CoralIO {
         .pid(CoralConstants.manipulatorP, CoralConstants.manipulatorI, CoralConstants.manipulatorD);
 
     manipulator.configure(
-        armConfig,
+        manipulatorConfig,
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
 
