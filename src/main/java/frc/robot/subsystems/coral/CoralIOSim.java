@@ -30,9 +30,10 @@ public class CoralIOSim implements CoralIO {
 
   @Override
   public void updateInputs(CoralIOInputs inputs) {
+    inputs.armAngle = Units.degreesToRadians(armStraight.getAngle());
+    inputs.manipulatorSpeed = manipulatorSpeed;
     // arm visualisation
     Logger.recordOutput("Arm", arm2d);
-    Logger.recordOutput("ManipulatorSpeed", manipulatorSpeed);
   }
 
   @Override

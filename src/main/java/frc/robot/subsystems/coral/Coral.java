@@ -59,11 +59,19 @@ public class Coral extends SubsystemBase {
     Logger.recordOutput("CoralStates/WantedState", wantedState);
   }
 
+  /**
+   * @param position position that is needed. Usually the {@code armSetPosition}
+   * @return if the arm is close enough to the arm set position
+   */
   public boolean isArmInPosition(double position) {
     return position + CoralConstants.armTolerance < inputs.armAngle
         || inputs.armAngle < position + CoralConstants.armTolerance;
   }
 
+  /**
+   * Updates the current state based on the wanted state. Should be used like this: {@code systemState = updateState();}
+   * @return The system state
+   */
   private SystemState updateState() {
     previousState = systemState;
     return switch (wantedState) {
@@ -73,7 +81,7 @@ public class Coral extends SubsystemBase {
         if (inputs.hasCoral) yield SystemState.SCORING;
         yield SystemState.INTAKING;
       case SCORING:
-        if (isArmInPosition(CoralConstants.L1Position)) {
+        if (!isArmInPosition(CoralConstants.L1Position)) {
           yield SystemState.SCORING;
         }
         yield SystemState.EJECTING;
@@ -82,7 +90,10 @@ public class Coral extends SubsystemBase {
     };
   }
 
-  public void applyState() {
+  /**
+   * Sets the variables that command the interfaces to values based on {@code systemState}
+   */
+  private void applyState() {
     switch (systemState) {
       case IDLE:
         break;
@@ -95,6 +106,7 @@ public class Coral extends SubsystemBase {
         manipulatorSetSpeed = 0.0;
         break;
       case EJECTING:
+        armSetPosition = CoralConstants.L1Position;
         manipulatorSetSpeed = CoralConstants.coralScoringSpeed;
         break;
       case RESTING:
@@ -104,6 +116,10 @@ public class Coral extends SubsystemBase {
     }
   }
 
+  /**
+   * Sets the wanted state for the coral manipulator
+   * @param wantedState state that is wanted
+   */
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
   }

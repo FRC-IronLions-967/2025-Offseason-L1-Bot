@@ -46,6 +46,11 @@ public class Superstructure extends SubsystemBase {
     Logger.recordOutput("Superstructure/WantedState", wantedState);
   }
 
+  /**
+   * Use like this: {@code currentState = updateState();} 
+   * updates the current state based on the wanted state
+   * @return the current state 
+   */
   private CurrentState updateState() {
     return switch (wantedState) {
       case INTAKING:
@@ -61,6 +66,9 @@ public class Superstructure extends SubsystemBase {
     };
   }
 
+  /**
+   * Gives commands to the manipulators based on the current state.
+   */
   private void applyState() {
     switch (currentState) {
       case INTAKING:
@@ -74,16 +82,26 @@ public class Superstructure extends SubsystemBase {
         break;
       case IDLE:
         coral.setWantedState(Coral.WantedState.IDLE);
+        break;
       default:
         coral.setWantedState(Coral.WantedState.IDLE);
         break;
     }
   }
 
+  /**
+   * Sets the wanted state
+   * @param state wanted state
+   */
   public void setWantedState(WantedState state) {
     wantedState = state;
   }
 
+  /**
+   * Used to move the manipulator to every single position ever
+   * @param state State that is wanted
+   * @return A command that sets the robot to that states config
+   */
   public Command setStateCommand(WantedState state) {
     return new InstantCommand(
         () -> {
